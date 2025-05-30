@@ -8,7 +8,6 @@ using namespace std;
 bool fn_dll() {
     WSADATA data;
     return WSAStartup(MAKEWORD(2, 2), &data) == 0;
-
 }
 
 int main() {
@@ -16,16 +15,14 @@ int main() {
 
     if (!fn_dll()) {
         cout << "failed to initialize the dll" << endl;
-    }
-    else {
+    } else {
         cout << "DLL success" << endl;
     }
 
     SOCKET listensocket = socket(AF_INET, SOCK_STREAM, 0);
     if (listensocket == INVALID_SOCKET) {
         cout << "failed to create socket" << endl;
-    }
-    else {
+    } else {
         cout << "socket success" << endl;
     }
 
@@ -33,39 +30,36 @@ int main() {
     server_address.sin_family = AF_INET;
     server_address.sin_port = htons(1234);
 
-    if(InetPton(AF_INET, "127.0.0.1", &server_address.sin_addr) !=1){
+    if (InetPton(AF_INET, "127.0.0.1", &server_address.sin_addr) != 1) {
         cout << "address structure failed" << endl;
         closesocket(listensocket);
         WSACleanup();
         return 1;
+    }
 
-}
+    if (bind(listensocket, (sockaddr*)&server_address, sizeof(server_address)) == SOCKET_ERROR) {
+        cout << "bind failed" << endl;
+    } else {
+        cout << "bind success" << endl;
+    }
 
-    if(bind(listensocket, (sockaddr*)&server_address, sizeof(server_address))== SOCKET_ERROR){
-cout << "bind failed" << endl;}
-
-    else{
-cout << "bind success" << endl;}
-
-
-    if(listen(listensocket, SOMAXCONN) == SOCKET_ERROR){
+    if (listen(listensocket, SOMAXCONN) == SOCKET_ERROR) {
         cout << "listen failed" << endl;
         closesocket(listensocket);
         WSACleanup();
         return 1;
-    }
-
-    else{
+    } else {
         cout << "listen success" << endl;
     }
+
     cout << "Server is up and running" << endl;
 
     SOCKET clientsocket = accept(listensocket, nullptr, nullptr);
-    if(clientsocket == INVALID_SOCKET) {
-cout << "accept failed" << endl;}
-
-else {
-cout << "accept success" << endl;}
+    if (clientsocket == INVALID_SOCKET) {
+        cout << "accept failed" << endl;
+    } else {
+        cout << "accept success" << endl;
+    }
 
     char buffer[4096];
     int bytes_received = recv(clientsocket, buffer, sizeof(buffer), 0);
@@ -74,9 +68,7 @@ cout << "accept success" << endl;}
 
     closesocket(clientsocket);
     closesocket(listensocket);
-
-
-
     WSACleanup();
 
+    return 0;
 }
