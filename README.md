@@ -17,7 +17,7 @@ This project demonstrates a basic **TCP client-server communication** setup usin
 ## ⚙️ Requirements
 
 - Windows OS
-- C++ compiler (Visual Studio / g++ with MinGW)
+- C++ compiler (Clion / g++ with MinGW)
 - Winsock2 (comes with Windows SDK)
 
 ---
