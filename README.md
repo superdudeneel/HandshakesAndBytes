@@ -28,3 +28,6 @@ This project demonstrates a basic **TCP client-server communication** setup usin
 
 ```bash
 g++ server.cpp -o server -lws2_32
+./server
+
+
