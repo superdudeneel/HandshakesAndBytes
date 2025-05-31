@@ -45,19 +45,28 @@ int main() {
     else {
         cout << "Successfully connected to server" << endl;
     }
-    string message;
-    cout << "Enter message to send: " << endl;
-    getline(cin, message);
-    int bytesent = send(s, message.c_str(), message.length(), 0);
-    if (bytesent == SOCKET_ERROR) {
-        cout << "Failed to send message" << endl;
-        closesocket(s);
-        WSACleanup();
-        return 1;
+    while(true){
+        string message;
+        cout << "Enter message to send: " << endl;
+        getline(cin, message);
+        int bytesent = send(s, message.c_str(), message.length(), 0);
+        if(message == "quit"){
+          closesocket(s);
+          break;
+        }
+        if (bytesent == SOCKET_ERROR) {
+            cout << "Failed to send message" << endl;
+            closesocket(s);
+            WSACleanup();
+            return 1;
+        }
+        else {
+            cout << "Successfully sent message" << endl;
+        }
     }
-    else {
-        cout << "Successfully sent message" << endl;
-    }
+
+
+
 
 
     WSACleanup();
