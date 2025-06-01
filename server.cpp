@@ -1,6 +1,9 @@
 #include <iostream>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <thread>
+#include <vector>
+#include <algorithm>
 using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
@@ -8,6 +11,35 @@ bool fn_dll() {
     WSAData data;
     return WSAStartup(MAKEWORD(2, 2), &data) == 0;
 
+}
+
+void interactwithclient(SOCKET clientsocket, vector<SOCKET> &clients) {
+    cout << "client connected" << endl;
+
+    char buffer[4096];
+    while (1) {
+        int byte_recv = recv(clientsocket, buffer, sizeof(buffer), 0);
+        if (byte_recv<=0) {
+            cout << "client disconnected" << endl;
+            break;
+
+        }
+        string message(buffer, byte_recv);
+        cout << "message from client: " << message << endl;
+        for (auto client: clients) {
+            if (client!=clientsocket) {
+                send(client, message.c_str(), message.size(), 0);
+            }
+        }
+
+
+
+    }
+    auto it = find(clients.begin(), clients.end(), clientsocket);
+    if (it!=clients.end()) {
+        clients.erase(it);
+    }
+    closesocket(clientsocket);
 }
 
 int main() {
@@ -63,29 +95,23 @@ int main() {
         return 1;
     }
 
-    SOCKET clientsocket  = accept(listensocket, NULL, NULL);
-    if (clientsocket == INVALID_SOCKET) {
-        cout << "Accept failed" << endl;
-    }
-    else {
-        cout << "Accept ready" << endl;
-    }
+    vector<SOCKET> clients;
 
-    while (true) {
-        char buffer[4096];
-        int bytes_received = recv(clientsocket, buffer, sizeof(buffer), 0);
-        string message(buffer, bytes_received);
-        if (message == "quit") {
-            closesocket(clientsocket);
-            closesocket(listensocket);
-            break;
 
+    while (1) {
+        SOCKET clientsocket  = accept(listensocket, NULL, NULL);
+        if (clientsocket == INVALID_SOCKET) {
+            cout << "Accept failed" << endl;
         }
-        cout << "message from client: " << message << endl;
+        else {
+            cout << "Accept ready" << endl;
+        }
+        clients.push_back(clientsocket);
+
+        thread t1(interactwithclient, clientsocket, std::ref(clients));
+        t1.detach();
 
     }
-
-
 
     WSACleanup();
 }
